@@ -933,7 +933,7 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "plt.hist(df_dayweek)\n"
+    "# plt.hist(df_dayweek)\n"
    ]
   },
   {
