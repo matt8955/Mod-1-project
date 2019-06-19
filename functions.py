@@ -20,4 +20,3 @@ def log_transform(df, cols):
         df['log_{}'.format(col)] = df[col]
         df.drop(col, axis=1, inplace=True)
     return df
-        
