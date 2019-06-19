@@ -22,7 +22,7 @@ def remove_outliers(df):
             pd_copy[col] == df[col]
     
     return pd_copy
-    
+
 df = remove_outliers(df)  
 
 #clean data:
@@ -40,14 +40,14 @@ def clean_data(df):
 
     return df
     
-#take in list of columns in def and log transform so that we only transform specified columns 
+
 def log_transform(df, cols):
     ''' takes in dataframe and cols to log transfrom and returns 
         the dataset with the log transformed columns dropped the regular
         col'''
+    df_copy = df.copy()
     for col in cols:
-        df[col] = np.log(df[col])
-        df['log_{}'.format(col)] = df[col]
-        df.drop(col, axis=1, inplace=True)
-    return df
-        
+        df_copy[col] = np.log(df_copy[col])
+        df_copy['log_{}'.format(col)] = df_copy[col]
+        df_copy.drop(col, axis=1, inplace=True)
+    return df_copy
