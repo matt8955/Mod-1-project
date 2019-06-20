@@ -67,6 +67,18 @@ def scatter_one_vs_all(df, column):
             i += 1
     return 0
 
+def partial_regress(depend, df):
+    features = list(df.columns)
+    features.remove(depend) #make col of all features to loop across
+    fig, ax = plt.subplots(5,4, figsize=(30,30))
+    i=0
+    for m in range(5):
+        for n in range(4):
+            sm.graphics.plot_partregress(depend, features[i], ax=ax[m][n])
+            ax[m][n].set_title('{}'.format(features[i]))
+            i += 1
+    return 0
+
 def jarque_bera(depend, df):
     features = list(df.columns)
     features.remove(depend) #make col of all features to loop across
