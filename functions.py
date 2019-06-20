@@ -27,7 +27,9 @@ def remove_outliers(df, cols):
 
 #clean data:
 def clean_data(df):
-    #check duplicates... BUT duplicates are a result of the same house being sold a second or third time 
+    '''cleans yr_renovated, sqft_basement, watefront because 
+       they had placeholders that skewed the data'''
+
     #yr_renovated column has both nan and 0.0 filler values... change all to nan so 0.0 doesn't skew data
     df['yr_renovated'] = df['yr_renovated'].replace(0.0, np.nan)
 
@@ -40,7 +42,7 @@ def clean_data(df):
     
     return df
     
-import numpy as np 
+import numpy as np #this is imported above. Should we delete?
 
 def log_transform(df, cols):
     ''' takes in dataframe and cols to log transfrom and returns 
@@ -68,6 +70,7 @@ def scatter_one_vs_all(df, column):
     return 0
 
 def jarque_bera(depend, df):
+    '''Tests for normality for features we are interested in using '''
     features = list(df.columns)
     features.remove(depend) #make col of all features to loop across
     fig, ax = plt.subplots(5,4, figsize=(30,30))
