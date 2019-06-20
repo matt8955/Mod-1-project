@@ -34,13 +34,23 @@ def clean_data(df):
     df['yr_renovated'] = df['yr_renovated'].replace(0.0, np.nan)
 
     df['waterfront'] = df['waterfront'].fillna(0.0)
-
-    #sqft_basement in string format, convert and replace 0.0 with null to find median without skewed outliers
-    df['sqft_basement'] = pd.to_numeric(df['sqft_basement'], errors='coerce')
-    df['sqft_basement'] = df['sqft_basement'].replace(0.0, np.nan)
-    df['sqft_basement'] = df['sqft_basement'].fillna(df['sqft_basement'].median())
-    
     return df
+
+
+
+def replace_null_w_median(list_columns):
+    for col in list_columns:
+        if col in df.columns: 
+            df[col] = pd.to_numeric(df[col], errors='coerce')
+            df[col] = df[col].replace(0.0, np.nan)
+            df[col] = df[col].fillna(df[col].median()) 
+                   
+        else: 
+            return print('inputted columns not in dataframe-- try again')
+        
+        return 
+
+
     
 import numpy as np #this is imported above. Should we delete?
 
@@ -103,6 +113,32 @@ def jarque_bera(depend, df):
 #     return list(zip(name, test))  
 
 
+
+from sklearn.feature_selection import RFE 
+from sklearn.linear_model import LinearRegression
+
+
+
+#replace_null_w_median(['bedrooms', 'bathrooms', 'view'])
+
+
+
+
+
+def test_predictors(list_of_features):
+    predictors = df.reindex(columns=list_of_features)
+
+    linreg = LinearRegression()
+    selector = RFE(linreg, n_features_to_select = 2)
+    selector = selector.fit(predictors, df['log_price'])
+
+    selector_list = selector.support_
+    answer_list = []
+    
+    for i in range(0,len(selector_list)):
+         answer_list.append(f'{list_of_features[i]} - {selector_list[i]}')
+    
+    return answer_list
 
 
 
