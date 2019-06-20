@@ -37,6 +37,7 @@ def clean_data(df):
     #yr_renovated column has both nan and 0.0 filler values... change all to nan so 0.0 doesn't skew data
     df['yr_renovated'] = df['yr_renovated'].replace(0.0, np.nan)
     df['waterfront'] = df['waterfront'].fillna(0.0)
+<<<<<<< HEAD
     df['view'] = df['view'].fillna(0.0)
     df['sqft_basement'] = df['sqft_basement'].replace('?', np.nan)
     
@@ -59,7 +60,23 @@ def replace_null_w_median(list_columns, df):
         
 
     
+=======
+    return df
+>>>>>>> 4bfe03fde8bdd7b14e3fe142c3ad5ab34a327fa6
 
+def replace_null_w_median(list_columns):
+    for col in list_columns:
+        if col in df.columns: 
+            df[col] = pd.to_numeric(df[col], errors='coerce')
+            df[col] = df[col].replace(0.0, np.nan)
+            df[col] = df[col].fillna(df[col].median()) 
+                   
+        else: 
+            return print('inputted columns not in dataframe-- try again')
+        
+        return 
+
+    
 def log_transform(df, cols):
     ''' takes in dataframe and cols to log transfrom and returns 
         the dataset with the log transformed columns dropped the regular
@@ -86,11 +103,15 @@ def scatter_one_vs_all(df, column):
             i += 1
     return 0
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 4bfe03fde8bdd7b14e3fe142c3ad5ab34a327fa6
 def regression_plot(df, column):
     '''takes in df and tries to graph every independent var against the 
     column variable if seaborn cant plot it, revert to scatter'''
     df_copy = df.copy()
+<<<<<<< HEAD
     fig, ax = plt.subplots(5,4, figsize=(30,30))
     l = list(df_copy.columns)
     l.remove(column)
@@ -132,17 +153,24 @@ def histogram(df):
 def partial_regress(depend, df):
     features = list(df.columns)
     features.remove(depend) #make col of all features to loop across
+=======
+>>>>>>> 4bfe03fde8bdd7b14e3fe142c3ad5ab34a327fa6
     fig, ax = plt.subplots(5,4, figsize=(30,30))
-    i=0
+    l = list(df_copy.columns)
+    l.remove(column)
+    i = 0 #to track col index
     for m in range(5):
         for n in range(4):
-            sm.graphics.plot_partregress(depend, features[i], ax=ax[m][n])
-            ax[m][n].set_title('{}'.format(features[i]))
-            i += 1
-    return 0
+            try:
+                sns.regplot(x=l[i],y=column,data=df_copy,ax=ax[m][n])
+                i += 1
+            except:
+                sns.scatterplot(x=l[i],y=column,data=df_copy,ax=ax[m][n])
+                i += 1
+    return 
 
-def jarque_bera(depend, df):
-    '''Tests for normality for features we are interested in using '''
+def qq_plot(depend, df):
+    df_copy = df.copy()
     features = list(df.columns)
     features.remove(depend) #make col of all features to loop across
     fig, ax = plt.subplots(5,4, figsize=(30,30))
@@ -150,16 +178,17 @@ def jarque_bera(depend, df):
     for m in range(5):
         for n in range(4):
             f = '{}~{}'.format(depend, features[i])
-            model = smf.ols(formula=f, data=df).fit()
+            model = smf.ols(formula=f, data=df_copy).fit()
             resid1 = model.resid
             sm.qqplot(resid1, dist=sp.stats.norm, line='45', fit=True, ax=ax[m][n])
             ax[m][n].set_title('{}'.format(features[i]))
             i += 1
-    return 0
+    return 
 
 # # JB test for TV
 #     name = ['Jarque-Bera','Prob','Skew', 'Kurtosis']
 #     test = sms.jarque_bera(model.resid)
+<<<<<<< HEAD
 #     return list(zip(name, test))  
 
 
@@ -179,10 +208,24 @@ def test_predictors(list_of_features, df, num_pred):
     answer_list = []
     estimators = selector.estimator_
 
+=======
+#     return list(zip(name, test)) 
+
+def test_predictors(list_of_features):
+    predictors = df.reindex(columns=list_of_features)
+
+    linreg = LinearRegression()
+    selector = RFE(linreg, n_features_to_select = 2)
+    selector = selector.fit(predictors, df['log_price'])
+
+    selector_list = selector.support_
+    answer_list = []
+>>>>>>> 4bfe03fde8bdd7b14e3fe142c3ad5ab34a327fa6
     
     for i in range(0,len(selector_list)):
          answer_list.append(f'{list_of_features[i]} - {selector_list[i]}')
     
+<<<<<<< HEAD
     return (answer_list, estimators.coef_, estimators.intercept_)
 
 
@@ -199,4 +242,7 @@ def create_model():
 
 ##
 
+=======
+    return answer_list
+>>>>>>> 4bfe03fde8bdd7b14e3fe142c3ad5ab34a327fa6
 
