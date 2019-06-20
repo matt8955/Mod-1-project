@@ -3,6 +3,8 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt 
 import statsmodels.formula.api as smf
+import statsmodels.api as sm
+import scipy as sp
 
 #remove outliers
 def remove_outliers(df, cols):  
@@ -65,15 +67,22 @@ def scatter_one_vs_all(df, column):
             i += 1
     return 0
 
-def jarque_bera(col):
-    f = 'price~{}'.format(col)
-    model = smf.ols(formula=f, data=df).fit()
+def jarque_bera(depend, df):
+    features = list(df.columns)
+    features.remove(depend) #make col of all features to loop across
+    fig, ax = plt.subplots(5,4, figsize=(30,30))
+    i=0
+    for m in range(5):
+        for n in range(4):
+            f = '{}~{}'.format(depend, features[i])
+            model = smf.ols(formula=f, data=df).fit()
+            resid1 = model.resid
+            sm.qqplot(resid1, dist=sp.stats.norm, line='45', fit=True, ax=ax[m][n])
+            ax[m][n].set_title('{}'.format(features[i]))
+            i += 1
+    return 0
 
-    resid1 = model.resid
-    fig = sm.graphics.qqplot(resid1, dist=stats.norm, line='45', fit=True)
-    fig.show()
-
-# JB test for TV
-    name = ['Jarque-Bera','Prob','Skew', 'Kurtosis']
-    test = sms.jarque_bera(model.resid)
-    return list(zip(name, test))                                               
+# # JB test for TV
+#     name = ['Jarque-Bera','Prob','Skew', 'Kurtosis']
+#     test = sms.jarque_bera(model.resid)
+#     return list(zip(name, test))                                               
