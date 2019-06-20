@@ -29,24 +29,30 @@ def remove_outliers(df, cols):
 def clean_data(df):
     '''cleans yr_renovated, sqft_basement, watefront because 
        they had placeholders that skewed the data'''
-
+    df_copy = df.copy()
     #yr_renovated column has both nan and 0.0 filler values... change all to nan so 0.0 doesn't skew data
-    df['yr_renovated'] = df['yr_renovated'].replace(0.0, np.nan)
+    df_copy['yr_renovated'] = df_copy['yr_renovated'].replace(0.0, np.nan)
+    df_copy['waterfront'] = df_copy['waterfront'].fillna(0.0)
+    df_copy['sqft_basement'] = df_copy['sqft_basement'].replace('?', np.nan)
+    df.sqft_basement = df.sqft_basement.astype(float)
+    df_copy['sqft_basement'] = df_copy['sqft_basement'].replace(0.0, 0.01) #when log transformed will go back to 0
+    
+    
+    return df_copy
 
-    df['waterfront'] = df['waterfront'].fillna(0.0)
-    return df
-
-def replace_null_w_median(list_columns):
+def replace_null_w_median(list_columns, df):
+    df_copy = df.copy()
     for col in list_columns:
         if col in df.columns: 
-            df[col] = pd.to_numeric(df[col], errors='coerce')
-            df[col] = df[col].replace(0.0, np.nan)
-            df[col] = df[col].fillna(df[col].median()) 
+            df_copy[col] = pd.to_numeric(df_copy[col], errors='coerce')
+            df_copy[col] = df_copy[col].replace(0.0, np.nan)
+            df_copy[col] = df_copy[col].fillna(df[col].median())   
                    
         else: 
             return print('inputted columns not in dataframe-- try again')
         
-        return 
+        return df_copy
+
 
     
 def log_transform(df, cols):
