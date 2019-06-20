@@ -27,18 +27,27 @@ def remove_outliers(df, cols):
 
 #clean data:
 def clean_data(df):
-    #check duplicates... BUT duplicates are a result of the same house being sold a second or third time 
+    '''cleans yr_renovated, sqft_basement, watefront because 
+       they had placeholders that skewed the data'''
+
     #yr_renovated column has both nan and 0.0 filler values... change all to nan so 0.0 doesn't skew data
     df['yr_renovated'] = df['yr_renovated'].replace(0.0, np.nan)
 
     df['waterfront'] = df['waterfront'].fillna(0.0)
-
-    #sqft_basement in string format, convert and replace 0.0 with null to find median without skewed outliers
-    df['sqft_basement'] = pd.to_numeric(df['sqft_basement'], errors='coerce')
-    df['sqft_basement'] = df['sqft_basement'].replace(0.0, np.nan)
-    df['sqft_basement'] = df['sqft_basement'].fillna(df['sqft_basement'].median())
-    
     return df
+
+def replace_null_w_median(list_columns):
+    for col in list_columns:
+        if col in df.columns: 
+            df[col] = pd.to_numeric(df[col], errors='coerce')
+            df[col] = df[col].replace(0.0, np.nan)
+            df[col] = df[col].fillna(df[col].median()) 
+                   
+        else: 
+            return print('inputted columns not in dataframe-- try again')
+        
+        return 
+
     
 def log_transform(df, cols):
     ''' takes in dataframe and cols to log transfrom and returns 
@@ -103,4 +112,19 @@ def qq_plot(depend, df):
 # # JB test for TV
 #     name = ['Jarque-Bera','Prob','Skew', 'Kurtosis']
 #     test = sms.jarque_bera(model.resid)
-#     return list(zip(name, test))                                               
+#     return list(zip(name, test)) 
+
+def test_predictors(list_of_features):
+    predictors = df.reindex(columns=list_of_features)
+
+    linreg = LinearRegression()
+    selector = RFE(linreg, n_features_to_select = 2)
+    selector = selector.fit(predictors, df['log_price'])
+
+    selector_list = selector.support_
+    answer_list = []
+    
+    for i in range(0,len(selector_list)):
+         answer_list.append(f'{list_of_features[i]} - {selector_list[i]}')
+    
+    return answer_list
