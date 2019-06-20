@@ -40,8 +40,6 @@ def clean_data(df):
     
     return df
     
-import numpy as np 
-
 def log_transform(df, cols):
     ''' takes in dataframe and cols to log transfrom and returns 
         the dataset with the log transformed columns dropped the regular
@@ -57,29 +55,37 @@ def log_transform(df, cols):
 def scatter_one_vs_all(df, column):
     ''' a data frame and one column and plots scatters for all cols and
     against one var only works on current data sets # of features'''
+    df_copy = df.copy()
     fig, ax = plt.subplots(5,4, figsize=(30,30))
-    l = list(df.columns)
+    l = list(df_copy.columns)
     l.remove(column)
     i = 0 #to track col index
     for m in range(5):
         for n in range(4):
-            sns.scatterplot(x=l[i],y=column,data=df,ax=ax[m][n])
+            sns.scatterplot(x=l[i],y=column,data=df_copy,ax=ax[m][n])
             i += 1
     return 0
 
-def partial_regress(depend, df):
-    features = list(df.columns)
-    features.remove(depend) #make col of all features to loop across
+def regression_plot(df, column):
+    '''takes in df and tries to graph every independent var against the 
+    column variable if seaborn cant plot it, revert to scatter'''
+    df_copy = df.copy()
     fig, ax = plt.subplots(5,4, figsize=(30,30))
-    i=0
+    l = list(df_copy.columns)
+    l.remove(column)
+    i = 0 #to track col index
     for m in range(5):
         for n in range(4):
-            sm.graphics.plot_partregress(depend, features[i], ax=ax[m][n])
-            ax[m][n].set_title('{}'.format(features[i]))
-            i += 1
-    return 0
+            try:
+                sns.regplot(x=l[i],y=column,data=df_copy,ax=ax[m][n])
+                i += 1
+            except:
+                sns.scatterplot(x=l[i],y=column,data=df_copy,ax=ax[m][n])
+                i += 1
+    return 
 
-def jarque_bera(depend, df):
+def qq_plot(depend, df):
+    df_copy = df.copy()
     features = list(df.columns)
     features.remove(depend) #make col of all features to loop across
     fig, ax = plt.subplots(5,4, figsize=(30,30))
@@ -87,12 +93,12 @@ def jarque_bera(depend, df):
     for m in range(5):
         for n in range(4):
             f = '{}~{}'.format(depend, features[i])
-            model = smf.ols(formula=f, data=df).fit()
+            model = smf.ols(formula=f, data=df_copy).fit()
             resid1 = model.resid
             sm.qqplot(resid1, dist=sp.stats.norm, line='45', fit=True, ax=ax[m][n])
             ax[m][n].set_title('{}'.format(features[i]))
             i += 1
-    return 0
+    return 
 
 # # JB test for TV
 #     name = ['Jarque-Bera','Prob','Skew', 'Kurtosis']
