@@ -6,6 +6,8 @@ import statsmodels.formula.api as smf
 
 #remove outliers
 def remove_outliers(df, cols):  
+    ''' takes in df and cols we want to remove outliers from
+    and returns a cleaned df'''
     pd_copy = pd.DataFrame(df, copy=True)
     for col in cols:
         try:
@@ -32,8 +34,8 @@ def clean_data(df):
     #sqft_basement in string format, convert and replace 0.0 with null to find median without skewed outliers
     df['sqft_basement'] = pd.to_numeric(df['sqft_basement'], errors='coerce')
     df['sqft_basement'] = df['sqft_basement'].replace(0.0, np.nan)
-    df['sqft_basement'] = df['sqft_basement'].fillna(df['sqft_basement'].median()
-
+    df['sqft_basement'] = df['sqft_basement'].fillna(df['sqft_basement'].median())
+    
     return df
     
 import numpy as np 
@@ -48,21 +50,21 @@ def log_transform(df, cols):
         df_copy['log_{}'.format(col)] = df_copy[col]
         df_copy.drop(col, axis=1, inplace=True)
     return df_copy
-                                                     
+                 
+    
 def scatter_one_vs_all(df, column):
     ''' a data frame and one column and plots scatters for all cols and
     against one var only works on current data sets # of features'''
     fig, ax = plt.subplots(5,4, figsize=(30,30))
-    c = list(df.columns)
-    c.remove(column)
+    l = list(df.columns)
+    l.remove(column)
     i = 0 #to track col index
     for m in range(5):
         for n in range(4):
-            ax[m][n].scatter(transformed_df[c[i]], transformed_df.log_price)
-            ax[m][n].set_title('{} vs {}'.format(column,c[i]), fontsize=18)
+            sns.scatterplot(x=l[i],y=column,data=df,ax=ax[m][n])
             i += 1
     return 0
-                                                     
+
 def jarque_bera(col):
     f = 'price~{}'.format(col)
     model = smf.ols(formula=f, data=df).fit()
