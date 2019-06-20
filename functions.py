@@ -88,4 +88,18 @@ def jarque_bera(depend, df):
 # # JB test for TV
 #     name = ['Jarque-Bera','Prob','Skew', 'Kurtosis']
 #     test = sms.jarque_bera(model.resid)
-#     return list(zip(name, test))                                               
+#     return list(zip(name, test))  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
