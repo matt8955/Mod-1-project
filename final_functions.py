@@ -15,6 +15,9 @@ import math
 
 
 #remove outliers
+def read_dataframe(csv):
+    return pd.read_csv(csv)
+
 def remove_outliers(df, cols):
     ''' takes in df and cols we want to remove outliers from
     and returns a cleaned df'''
@@ -26,7 +29,7 @@ def remove_outliers(df, cols):
             iqr = q3-q1 #Interquartile range
             fence_low  = q1-1.5*iqr
             fence_high = q3+1.5*iqr
-            pd_copy.loc[(pd_copy[col] < fence_low) | (pd_copy[col] > fence_high),col] = np.nan
+            pd_copy.loc[(pd_copy[col] < fence_low) | (pd_copy[col] > fence_high),col] = 0.0
             df = pd_copy
 
         except:
@@ -115,14 +118,17 @@ def single_regression_plot(df, dep, features):
     stats = get_statistics(df_copy.columns, 'log_price', df_copy)
     for m in range(4):
         for n in range(2):
-            try:
-                sns.regplot(x=l[i],y=dep,data=df_copy,ax=ax[m][n])
-                ax[m][n].set_title('r^2 = {}'.format(stats[l[i]]['r_squared']))
-                i += 1
-            except:
-                sns.scatterplot(x=l[i],y=dep,data=df_copy,ax=ax[m][n])
-                ax[m][n].set_title('r^2 = {}'.format(stats[l[i]]['r_squared']))
-                i += 1
+            if m == 3 and n == 1:
+                pass
+            else:
+                try:
+                    sns.regplot(x=l[i],y=dep,data=df_copy,ax=ax[m][n])
+                    ax[m][n].set_title('r^2 = {}'.format(stats[l[i]]['r_squared']))
+                    i += 1
+                except:
+                    sns.scatterplot(x=l[i],y=dep,data=df_copy,ax=ax[m][n])
+                    ax[m][n].set_title('r^2 = {}'.format(stats[l[i]]['r_squared']))
+                    i += 1
     return
 
 
@@ -132,12 +138,15 @@ def qq_plot(depend,features, df):
     i=0
     for m in range(4):
         for n in range(2):
-            f = '{}~{}'.format(depend, features[i])
-            model = smf.ols(formula=f, data=df_copy).fit()
-            resid1 = model.resid
-            sm.qqplot(resid1, dist=sp.stats.norm, line='45', fit=True, ax=ax[m][n])
-            ax[m][n].set_title('{}'.format(features[i]))
-            i += 1
+            if m == 3 and n == 1:
+                pass
+            else:
+                f = '{}~{}'.format(depend, features[i])
+                model = smf.ols(formula=f, data=df_copy).fit()
+                resid1 = model.resid
+                sm.qqplot(resid1, dist=sp.stats.norm, line='45', fit=True, ax=ax[m][n])
+                ax[m][n].set_title('{}'.format(features[i]))
+                i += 1
     return
 
 
@@ -178,7 +187,7 @@ def actual_vs_predicted_df(df):
     
     data = df
     y = df["log_price"]
-    X = df[["log_sqft_living", "waterfront", "grade", "condition", "log_sqft_living15", "view", "yr_built", "zipcode"]]
+    X = df[["log_sqft_living", "waterfront", "grade", "condition", "log_sqft_living15", "view", "yr_built"]]
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2)    
     
@@ -192,7 +201,6 @@ def actual_vs_predicted_df(df):
 
     df_predicted = pd.DataFrame({'Actual': y_test, 'Predicted': y_pred})
     return df_predicted
-
 
 
 def bar_error(df):
@@ -214,6 +222,9 @@ def regression_plot(df_predicted):
                   data=df_predicted, kind='reg', 
                   joint_kws={'line_kws':{'color':'rosyBrown'}})
     g.fig.suptitle("Predicted vs. Actual Values Regression Plot")
-    return                                                                                                    
+    return   
+
+
+
 
 
