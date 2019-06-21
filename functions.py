@@ -1,13 +1,17 @@
 import numpy as np
 import pandas as pd
 import seaborn as sns
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
 import statsmodels.formula.api as smf
 import statsmodels.api as sm
 import scipy as sp
+from sklearn.feature_selection import RFE
+from sklearn.linear_model import LinearRegression
+
+
 
 #remove outliers
-def remove_outliers(df, cols):  
+def remove_outliers(df, cols):
     ''' takes in df and cols we want to remove outliers from
     and returns a cleaned df'''
     pd_copy = pd.DataFrame(df, copy=True)
@@ -19,18 +23,22 @@ def remove_outliers(df, cols):
             fence_low  = q1-1.5*iqr
             fence_high = q3+1.5*iqr
             pd_copy.loc[(pd_copy[col] < fence_low) | (pd_copy[col] > fence_high),col] = np.nan
-        
+            df = pd_copy
+
         except:
             pd_copy[col] == df[col]
-    
-    return pd_copy
+
+    return df
+
+
 
 #clean data:
 def clean_data(df):
-    '''cleans yr_renovated, sqft_basement, watefront because 
+    '''cleans yr_renovated, sqft_basement, watefront because
        they had placeholders that skewed the data'''
     df_copy = df.copy()
     #yr_renovated column has both nan and 0.0 filler values... change all to nan so 0.0 doesn't skew data
+<<<<<<< HEAD
     df_copy['yr_renovated'] = df_copy['yr_renovated'].replace(0.0, np.nan)
     df_copy['waterfront'] = df_copy['waterfront'].fillna(0.0)
     df_copy['sqft_basement'] = df_copy['sqft_basement'].replace('?', np.nan)
@@ -38,6 +46,32 @@ def clean_data(df):
     return df_copy
 
 
+=======
+    df['yr_renovated'] = df['yr_renovated'].replace(0.0, np.nan)
+    df['waterfront'] = df['waterfront'].fillna(0.0)
+    df['view'] = df['view'].fillna(0.0)
+    df['sqft_basement'] = df['sqft_basement'].replace('?', np.nan)
+
+    return df
+
+
+
+def replace_null_w_median(list_columns, df):
+    df_copy = df.copy()
+    for col in list_columns:
+        if col in df.columns:
+            df_copy[col] = pd.to_numeric(df_copy[col], errors='coerce')
+            df_copy[col] = df_copy[col].replace(0.0, np.nan)
+            df_copy[col] = df_copy[col].fillna(df[col].median())
+
+        else:
+            return print('inputted columns not in dataframe-- try again')
+
+        return df_copy
+
+
+
+>>>>>>> 8a2fe32fdc707d8093968fd65b4137f0aac5684f
 
 def replace_null_w_median(list_columns, df):
     df_copy = df.copy()
@@ -53,7 +87,7 @@ def replace_null_w_median(list_columns, df):
         return df_copy
     
 def log_transform(df, cols):
-    ''' takes in dataframe and cols to log transfrom and returns 
+    ''' takes in dataframe and cols to log transfrom and returns
         the dataset with the log transformed columns dropped the regular
         col'''
     df_copy = df.copy()
@@ -62,8 +96,8 @@ def log_transform(df, cols):
         df_copy['log_{}'.format(col)] = df_copy[col]
         df_copy.drop(col, axis=1, inplace=True)
     return df_copy
-                 
-    
+
+
 def scatter_one_vs_all(df, column):
     ''' a data frame and one column and plots scatters for all cols and
     against one var only works on current data sets # of features'''
@@ -78,8 +112,14 @@ def scatter_one_vs_all(df, column):
             i += 1
     return 0
 
+<<<<<<< HEAD
 def regression_plot(df, column):
     '''takes in df and tries to graph every independent var against the 
+=======
+
+def regression_plot(df, column):
+    '''takes in df and tries to graph every independent var against the
+>>>>>>> 8a2fe32fdc707d8093968fd65b4137f0aac5684f
     column variable if seaborn cant plot it, revert to scatter'''
     df_copy = df.copy()
     fig, ax = plt.subplots(5,4, figsize=(30,30))
@@ -94,8 +134,15 @@ def regression_plot(df, column):
             except:
                 sns.scatterplot(x=l[i],y=column,data=df_copy,ax=ax[m][n])
                 i += 1
+<<<<<<< HEAD
     return 
 
+=======
+    return
+
+
+
+>>>>>>> 8a2fe32fdc707d8093968fd65b4137f0aac5684f
 def qq_plot(depend, df):
     df_copy = df.copy()
     features = list(df.columns)
@@ -110,11 +157,24 @@ def qq_plot(depend, df):
             sm.qqplot(resid1, dist=sp.stats.norm, line='45', fit=True, ax=ax[m][n])
             ax[m][n].set_title('{}'.format(features[i]))
             i += 1
+<<<<<<< HEAD
     return 
+=======
+    return
+
+
+
+def histogram(df):
+    return df.hist(bins=50, figsize=(20,15))
+
+
+
+>>>>>>> 8a2fe32fdc707d8093968fd65b4137f0aac5684f
 
 # # JB test for TV
 #     name = ['Jarque-Bera','Prob','Skew', 'Kurtosis']
 #     test = sms.jarque_bera(model.resid)
+<<<<<<< HEAD
 #     return list(zip(name, test)) 
 
 def test_predictors(list_of_features):
@@ -131,3 +191,32 @@ def test_predictors(list_of_features):
          answer_list.append(f'{list_of_features[i]} - {selector_list[i]}')
     
     return answer_list
+=======
+#     return list(zip(name, test))
+
+def test_predictors(list_of_features, df, num_pred):
+    '''input list of features, df, numbers of predictors you want to compare against log_price'''
+    predictors = df.reindex(columns=list_of_features)
+
+    linreg = LinearRegression()
+    selector = RFE(linreg, n_features_to_select = num_pred)
+    selector = selector.fit(predictors, df['log_price'])
+
+    selector_list = selector.ranking_
+    answer_list = []
+    estimators = selector.estimator_
+
+
+    for i in range(0,len(selector_list)):
+         answer_list.append(f'{list_of_features[i]} - {selector_list[i]}')
+
+    return (answer_list, estimators.coef_, estimators.intercept_)
+
+
+from statsmodels.formula.api import ols
+
+def create_model():
+    f = 'log_price~ log_sqft_living + waterfront + grade + condition + log_sqft_living15 + view + yr_built + zipcode'
+    model = ols(formula = f, data = df).fit()
+    return model.summary()
+>>>>>>> 8a2fe32fdc707d8093968fd65b4137f0aac5684f
