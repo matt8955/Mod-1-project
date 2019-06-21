@@ -7,8 +7,11 @@ import statsmodels.api as sm
 import scipy as sp
 from sklearn.feature_selection import RFE
 from sklearn.linear_model import LinearRegression
+import seaborn as seabornInstance 
+from sklearn.model_selection import train_test_split 
+from sklearn.linear_model import LinearRegression
+from sklearn import metrics
 import math
-
 
 
 #remove outliers
@@ -177,6 +180,7 @@ def histogram(df):
 
 
 
+<<<<<<< HEAD
 >>>>>>> 8a2fe32fdc707d8093968fd65b4137f0aac5684f
 
 # # JB test for TV
@@ -202,6 +206,8 @@ def test_predictors(list_of_features):
 =======
 #     return list(zip(name, test))
 
+=======
+>>>>>>> fd005ef8a5422cf9af4448ee1c3237f912725641
 def test_predictors(list_of_features, df, num_pred):
     '''input list of features, df, numbers of predictors you want to compare against log_price'''
     predictors = df.reindex(columns=list_of_features)
@@ -214,16 +220,14 @@ def test_predictors(list_of_features, df, num_pred):
     answer_list = []
     estimators = selector.estimator_
 
-
     for i in range(0,len(selector_list)):
          answer_list.append(f'{list_of_features[i]} - {selector_list[i]}')
-
     return (answer_list, estimators.coef_, estimators.intercept_)
 
 
 from statsmodels.formula.api import ols
 
-def create_model():
+def create_model(df):
     f = 'log_price~ log_sqft_living + waterfront + grade + condition + log_sqft_living15 + view + yr_built + zipcode'
     model = ols(formula = f, data = df).fit()
     return model.summary()
@@ -249,6 +253,12 @@ def get_statistics(features, depend, df):
 def actual_vs_predicted_df(df):
     '''makes data frame of actual vs. predicted values and returns the data frame as df_predicted'''
     
+    data = df
+    y = df["log_price"]
+    X = df[["log_sqft_living", "waterfront", "grade", "condition", "log_sqft_living15", "view", "yr_built", "zipcode"]]
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2)    
+    
     regressor = LinearRegression()  
     regressor.fit(X_train, y_train)
 
@@ -262,9 +272,9 @@ def actual_vs_predicted_df(df):
 
 
 
-def bar_error():
+def bar_error(df):
     '''makes a bar chart of first 25 entries in data set for actual price vs predicted price... '''
-    df1 = df_predicted.head(25)
+    df1 = df.head(25)
     
     df1.plot(kind='bar',figsize=(10,8), color=['lightSkyBlue', 'sandyBrown'])
     plt.grid(which='major', linestyle='-', linewidth='0.5', color='lightgrey')
@@ -274,7 +284,7 @@ def bar_error():
     return
 
 
-def regression_plot():
+def regression_plot(df_predicted):
     '''creates a regression plot of actual vs. predicted values.'''
     import seaborn as sns; sns.set(style="white", color_codes=True)
     g = sns.jointplot(df_predicted.Actual, df_predicted.Predicted, 
