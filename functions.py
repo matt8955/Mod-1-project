@@ -90,36 +90,48 @@ def scatter_one_vs_all(df, column):
             i += 1
     return 0
 
+def get_statistics(features, depend, df):
+    '''put in list of cols in df or all cols and 
+    depend var will return test stas for each var'''
+    df_copy = df.copy()
+    features_dict = {} #list to store stats by feature 
+    features = list(features)
+    if depend in features:
+        features.remove(depend) #remove depend var
+    for feature in features:
+        f = '{}~{}'.format(depend, feature)
+        model = ols(formula=f, data=df_copy).fit()
+        feature_dict = {'r_squared': model.rsquared, 'pvalue' : model.pvalues[1]}
+        features_dict.update({feature :feature_dict})
+    return features_dict
 
-def single_regression_plot(df, column):
+def single_regression_plot(df, dep, features):
     '''takes in df and tries to graph every independent var against the
     column variable if seaborn cant plot it, revert to scatter'''
     df_copy = df.copy()
-    l = list(df_copy.columns)
-    l.remove(column)
-#     #automate amount of subplot rows
-#     c = len(l)
-    fig, ax = plt.subplots(5,4, figsize=(30,30))
+    l = features
+    fig, ax = plt.subplots(4,2, figsize=(30,30))
     i = 0 #to track col index
-    for m in range(5):
-        for n in range(4):
+    stats = get_statistics(df_copy.columns, 'log_price', df_copy)
+    for m in range(4):
+        for n in range(2):
             try:
-                sns.regplot(x=l[i],y=column,data=df_copy,ax=ax[m][n])
+                sns.regplot(x=l[i],y=dep,data=df_copy,ax=ax[m][n])
+                ax[m][n].set_title('r^2 = {}'.format(stats[l[i]]['r_squared']))
                 i += 1
             except:
-                sns.scatterplot(x=l[i],y=column,data=df_copy,ax=ax[m][n])
+                sns.scatterplot(x=l[i],y=dep,data=df_copy,ax=ax[m][n])
+                ax[m][n].set_title('r^2 = {}'.format(stats[l[i]]['r_squared']))
                 i += 1
     return
 
 
-def qq_plot(depend, df):
+def qq_plot(depend,features, df):
     df_copy = df.copy()
-    features = list(df.columns)
-    features.remove(depend) #make col of all features to loop across
-    fig, ax = plt.subplots(5,4, figsize=(30,30))
+    fig, ax = plt.subplots(4,2, figsize=(30,30))
     i=0
-    for m in range(5):
-        for n in range(4):
+    for m in range(4):
+        for n in range(2):
             f = '{}~{}'.format(depend, features[i])
             model = smf.ols(formula=f, data=df_copy).fit()
             resid1 = model.resid
@@ -154,25 +166,12 @@ def test_predictors(list_of_features, df, num_pred):
 
 from statsmodels.formula.api import ols
 
-def create_model(df):
-    f = 'log_price~ log_sqft_living + waterfront + grade + condition + log_sqft_living15 + view + yr_built + zipcode'
-    model = ols(formula = f, data = df).fit()
+def create_model(df, f):
+    #f = 'log_price~ log_sqft_living + waterfront + grade + condition + log_sqft_living15 + view + yr_built + zipcode'
+    outcome = 'log_price'
+    pred_sum = "+".join(f)
+    model = ols(outcome + "~" + pred_sum, data = df).fit()
     return model.summary()
-
-def get_statistics(features, depend, df):
-    '''put in list of cols in df or all cols and 
-    depend var will return test stas for each var'''
-    df_copy = df.copy()
-    features_dict = {} #list to store stats by feature 
-    features = list(features)
-    if depend in features:
-        features.remove(depend) #remove depend var
-    for feature in features:
-        f = '{}~{}'.format(depend, feature)
-        model = ols(formula=f, data=df_copy).fit()
-        feature_dict = {'r_squared': model.rsquared, 'pvalue' : model.pvalues[1]}
-        features_dict.update({feature :feature_dict})
-    return features_dict
 
 def actual_vs_predicted_df(df):
     '''makes data frame of actual vs. predicted values and returns the data frame as df_predicted'''
