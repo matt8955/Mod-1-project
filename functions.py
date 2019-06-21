@@ -7,16 +7,11 @@ import statsmodels.api as sm
 import scipy as sp
 from sklearn.feature_selection import RFE
 from sklearn.linear_model import LinearRegression
-<<<<<<< HEAD
 import seaborn as seabornInstance 
 from sklearn.model_selection import train_test_split 
 from sklearn.linear_model import LinearRegression
 from sklearn import metrics
-
-=======
 import math
->>>>>>> b92874f3c956768f01019787ca023da8cb08a06f
-
 
 
 #remove outliers
