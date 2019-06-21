@@ -7,6 +7,7 @@ import statsmodels.api as sm
 import scipy as sp
 from sklearn.feature_selection import RFE
 from sklearn.linear_model import LinearRegression
+import math
 
 
 
@@ -76,6 +77,7 @@ def scatter_one_vs_all(df, column):
     against one var only works on current data sets # of features'''
     df_copy = df.copy()
     fig, ax = plt.subplots(5,4, figsize=(30,30))
+    
     l = list(df_copy.columns)
     l.remove(column)
     i = 0 #to track col index
@@ -86,13 +88,15 @@ def scatter_one_vs_all(df, column):
     return 0
 
 
-def regression_plot(df, column):
+def single_regression_plot(df, column):
     '''takes in df and tries to graph every independent var against the
     column variable if seaborn cant plot it, revert to scatter'''
     df_copy = df.copy()
-    fig, ax = plt.subplots(5,4, figsize=(30,30))
     l = list(df_copy.columns)
     l.remove(column)
+#     #automate amount of subplot rows
+#     c = len(l)
+    fig, ax = plt.subplots(5,4, figsize=(30,30))
     i = 0 #to track col index
     for m in range(5):
         for n in range(4):
@@ -138,8 +142,8 @@ def test_predictors(list_of_features, df, num_pred):
     '''input list of features, df, numbers of predictors you want to compare against log_price'''
     predictors = df.reindex(columns=list_of_features)
 
-    linreg = LinearRegression()
-    selector = RFE(linreg, n_features_to_select = num_pred)
+    linreg = LinearRegression() #create linear regression object
+    selector = RFE(linreg, n_features_to_select = num_pred) 
     selector = selector.fit(predictors, df['log_price'])
 
     selector_list = selector.ranking_
@@ -160,6 +164,20 @@ def create_model():
     model = ols(formula = f, data = df).fit()
     return model.summary()
 
+def get_statistics(features, depend, df):
+    '''put in list of cols in df or all cols and 
+    depend var will return test stas for each var'''
+    df_copy = df.copy()
+    features_dict = {} #list to store stats by feature 
+    features = list(features)
+    if depend in features:
+        features.remove(depend) #remove depend var
+    for feature in features:
+        f = '{}~{}'.format(depend, feature)
+        model = ols(formula=f, data=df_copy).fit()
+        feature_dict = {'r_squared': model.rsquared, 'pvalue' : model.pvalues[1]}
+        features_dict.update({feature :feature_dict})
+    return features_dict
 
 def actual_vs_predicted_df(df):
     '''makes data frame of actual vs. predicted values and returns the data frame as df_predicted'''
@@ -197,14 +215,5 @@ def regression_plot():
                   joint_kws={'line_kws':{'color':'rosyBrown'}})
     g.fig.suptitle("Predicted vs. Actual Values Regression Plot")
     return                                                                                                    
-
-
-
-
-
-
-
-
-
 
 
