@@ -7,6 +7,7 @@ import statsmodels.api as sm
 import scipy as sp
 from sklearn.feature_selection import RFE
 from sklearn.linear_model import LinearRegression
+import math
 
 
 
@@ -29,8 +30,6 @@ def remove_outliers(df, cols):
             pd_copy[col] == df[col]
 
     return df
-
-
 
 #clean data:
 def clean_data(df):
@@ -70,6 +69,7 @@ def replace_null_w_median(list_columns, df):
         return df_copy
 
 
+<<<<<<< HEAD
 
 >>>>>>> 8a2fe32fdc707d8093968fd65b4137f0aac5684f
 
@@ -86,6 +86,8 @@ def replace_null_w_median(list_columns, df):
         
         return df_copy
     
+=======
+>>>>>>> cbf3de06515a325d6c4b1c7b288d2302500862dc
 def log_transform(df, cols):
     ''' takes in dataframe and cols to log transfrom and returns
         the dataset with the log transformed columns dropped the regular
@@ -103,6 +105,7 @@ def scatter_one_vs_all(df, column):
     against one var only works on current data sets # of features'''
     df_copy = df.copy()
     fig, ax = plt.subplots(5,4, figsize=(30,30))
+    
     l = list(df_copy.columns)
     l.remove(column)
     i = 0 #to track col index
@@ -117,14 +120,16 @@ def regression_plot(df, column):
     '''takes in df and tries to graph every independent var against the 
 =======
 
-def regression_plot(df, column):
+def single_regression_plot(df, column):
     '''takes in df and tries to graph every independent var against the
 >>>>>>> 8a2fe32fdc707d8093968fd65b4137f0aac5684f
     column variable if seaborn cant plot it, revert to scatter'''
     df_copy = df.copy()
-    fig, ax = plt.subplots(5,4, figsize=(30,30))
     l = list(df_copy.columns)
     l.remove(column)
+#     #automate amount of subplot rows
+#     c = len(l)
+    fig, ax = plt.subplots(5,4, figsize=(30,30))
     i = 0 #to track col index
     for m in range(5):
         for n in range(4):
@@ -141,8 +146,11 @@ def regression_plot(df, column):
     return
 
 
+<<<<<<< HEAD
 
 >>>>>>> 8a2fe32fdc707d8093968fd65b4137f0aac5684f
+=======
+>>>>>>> cbf3de06515a325d6c4b1c7b288d2302500862dc
 def qq_plot(depend, df):
     df_copy = df.copy()
     features = list(df.columns)
@@ -198,8 +206,8 @@ def test_predictors(list_of_features, df, num_pred):
     '''input list of features, df, numbers of predictors you want to compare against log_price'''
     predictors = df.reindex(columns=list_of_features)
 
-    linreg = LinearRegression()
-    selector = RFE(linreg, n_features_to_select = num_pred)
+    linreg = LinearRegression() #create linear regression object
+    selector = RFE(linreg, n_features_to_select = num_pred) 
     selector = selector.fit(predictors, df['log_price'])
 
     selector_list = selector.ranking_
@@ -219,4 +227,61 @@ def create_model():
     f = 'log_price~ log_sqft_living + waterfront + grade + condition + log_sqft_living15 + view + yr_built + zipcode'
     model = ols(formula = f, data = df).fit()
     return model.summary()
+<<<<<<< HEAD
 >>>>>>> 8a2fe32fdc707d8093968fd65b4137f0aac5684f
+=======
+
+def get_statistics(features, depend, df):
+    '''put in list of cols in df or all cols and 
+    depend var will return test stas for each var'''
+    df_copy = df.copy()
+    features_dict = {} #list to store stats by feature 
+    features = list(features)
+    if depend in features:
+        features.remove(depend) #remove depend var
+    for feature in features:
+        f = '{}~{}'.format(depend, feature)
+        model = ols(formula=f, data=df_copy).fit()
+        feature_dict = {'r_squared': model.rsquared, 'pvalue' : model.pvalues[1]}
+        features_dict.update({feature :feature_dict})
+    return features_dict
+
+def actual_vs_predicted_df(df):
+    '''makes data frame of actual vs. predicted values and returns the data frame as df_predicted'''
+    
+    regressor = LinearRegression()  
+    regressor.fit(X_train, y_train)
+
+    coeff_df = pd.DataFrame(regressor.coef_, X.columns, columns=['Coefficient'])  
+    coeff_df
+
+    y_pred = regressor.predict(X_test)
+
+    df_predicted = pd.DataFrame({'Actual': y_test, 'Predicted': y_pred})
+    return df_predicted
+
+
+
+def bar_error():
+    '''makes a bar chart of first 25 entries in data set for actual price vs predicted price... '''
+    df1 = df_predicted.head(25)
+    
+    df1.plot(kind='bar',figsize=(10,8), color=['lightSkyBlue', 'sandyBrown'])
+    plt.grid(which='major', linestyle='-', linewidth='0.5', color='lightgrey')
+    plt.grid(which='minor', linestyle=':', linewidth='0.5', color='black')
+    plt.title('Actual vs. Predicted Price for First 25 Houses in Data Set', fontdict=None, loc='center', pad=None)
+    plt.show()
+    return
+
+
+def regression_plot():
+    '''creates a regression plot of actual vs. predicted values.'''
+    import seaborn as sns; sns.set(style="white", color_codes=True)
+    g = sns.jointplot(df_predicted.Actual, df_predicted.Predicted, 
+                  data=df_predicted, kind='reg', 
+                  joint_kws={'line_kws':{'color':'rosyBrown'}})
+    g.fig.suptitle("Predicted vs. Actual Values Regression Plot")
+    return                                                                                                    
+
+
+>>>>>>> cbf3de06515a325d6c4b1c7b288d2302500862dc
