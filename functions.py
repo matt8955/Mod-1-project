@@ -31,8 +31,6 @@ def remove_outliers(df, cols):
 
     return df
 
-
-
 #clean data:
 def clean_data(df):
     '''cleans yr_renovated, sqft_basement, watefront because
@@ -60,8 +58,6 @@ def replace_null_w_median(list_columns, df):
             return print('inputted columns not in dataframe-- try again')
 
         return df_copy
-
-
 
 
 def log_transform(df, cols):
@@ -92,7 +88,7 @@ def scatter_one_vs_all(df, column):
     return 0
 
 
-def regression_plot(df, column):
+def single_regression_plot(df, column):
     '''takes in df and tries to graph every independent var against the
     column variable if seaborn cant plot it, revert to scatter'''
     df_copy = df.copy()
@@ -111,7 +107,6 @@ def regression_plot(df, column):
                 sns.scatterplot(x=l[i],y=column,data=df_copy,ax=ax[m][n])
                 i += 1
     return
-
 
 
 def qq_plot(depend, df):
@@ -183,3 +178,42 @@ def get_statistics(features, depend, df):
         feature_dict = {'r_squared': model.rsquared, 'pvalue' : model.pvalues[1]}
         features_dict.update({feature :feature_dict})
     return features_dict
+
+def actual_vs_predicted_df(df):
+    '''makes data frame of actual vs. predicted values and returns the data frame as df_predicted'''
+    
+    regressor = LinearRegression()  
+    regressor.fit(X_train, y_train)
+
+    coeff_df = pd.DataFrame(regressor.coef_, X.columns, columns=['Coefficient'])  
+    coeff_df
+
+    y_pred = regressor.predict(X_test)
+
+    df_predicted = pd.DataFrame({'Actual': y_test, 'Predicted': y_pred})
+    return df_predicted
+
+
+
+def bar_error():
+    '''makes a bar chart of first 25 entries in data set for actual price vs predicted price... '''
+    df1 = df_predicted.head(25)
+    
+    df1.plot(kind='bar',figsize=(10,8), color=['lightSkyBlue', 'sandyBrown'])
+    plt.grid(which='major', linestyle='-', linewidth='0.5', color='lightgrey')
+    plt.grid(which='minor', linestyle=':', linewidth='0.5', color='black')
+    plt.title('Actual vs. Predicted Price for First 25 Houses in Data Set', fontdict=None, loc='center', pad=None)
+    plt.show()
+    return
+
+
+def regression_plot():
+    '''creates a regression plot of actual vs. predicted values.'''
+    import seaborn as sns; sns.set(style="white", color_codes=True)
+    g = sns.jointplot(df_predicted.Actual, df_predicted.Predicted, 
+                  data=df_predicted, kind='reg', 
+                  joint_kws={'line_kws':{'color':'rosyBrown'}})
+    g.fig.suptitle("Predicted vs. Actual Values Regression Plot")
+    return                                                                                                    
+
+
