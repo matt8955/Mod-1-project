@@ -50,8 +50,6 @@ def clean_data(df):
 
     return df
 
-
-
 def replace_null_w_median(list_columns, df):
     df_copy = df.copy()
     for col in list_columns:
@@ -176,6 +174,7 @@ def test_predictors(list_of_features, df, num_pred):
 from statsmodels.formula.api import ols
 
 def create_model(df, f):
+    '''creates model given a list of inputs to compare against log_price '''
     #f = 'log_price~ log_sqft_living + waterfront + grade + condition + log_sqft_living15 + view + yr_built + zipcode'
     outcome = 'log_price'
     pred_sum = "+".join(f)
